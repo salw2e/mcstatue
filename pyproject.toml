@@ -1,0 +1,27 @@
+[project]
+name = "mcstatue"
+version = "0.1.0"
+description = "Turns a photo into a Minecraft statue"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "transformers>=4.35,<4.50",
+    "omegaconf",
+    "einops",
+    "huggingface-hub",
+    "rembg[cpu]",
+    "numpy",
+    "scipy",
+    "pillow",
+]
+
+[project.scripts]
+mcstatue = "mcstatue.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["mcstatue*", "tsr*"]
+namespaces = true
