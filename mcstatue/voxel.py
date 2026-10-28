@@ -1,10 +1,10 @@
 import numpy as np
 from scipy import ndimage
 
-from .blocks import nearest
+from .blocks import nearest_lab, to_lab
 
 
-def blocks(density, color, names, s=2, threshold=25.0, solid=False, smooth=0.7):
+def blocks(density, color, names, photo=None, s=2, threshold=25.0, solid=False, smooth=0.7):
     """density and color sampled s times per block edge -> (x, y, z) grid of palette indexes, -1 is air"""
     w, h, l = (n // s for n in density.shape)
     density = density.reshape(w, s, h, s, l, s)
@@ -16,8 +16,9 @@ def blocks(density, color, names, s=2, threshold=25.0, solid=False, smooth=0.7):
     if count > 1:
         sizes = ndimage.sum(inside, labels, range(1, count + 1))
         inside = labels == sizes.argmax() + 1
+    shell = inside & ~ndimage.binary_erosion(inside, border_value=0)
     if not solid:
-        inside &= ~ndimage.binary_erosion(inside, border_value=0)
+        inside = shell
 
     # colour of a block = average of its samples near the surface
     surf = density > threshold
@@ -30,7 +31,15 @@ def blocks(density, color, names, s=2, threshold=25.0, solid=False, smooth=0.7):
         wsum = ndimage.gaussian_filter(wsum, smooth)
     rgb = np.where(wsum[..., None] > 1e-6, csum / np.maximum(wsum, 1e-6)[..., None], color.mean(axis=(1, 3, 5)))
 
+    lab = to_lab(np.clip(rgb, 0, 1) * 255)
+    # the model's colours come out dull, pull them towards the photo's own range
+    if photo is not None and len(photo):
+        ref = to_lab(photo)
+        seen = lab[shell]
+        ratio = np.clip(ref.std(0) / np.maximum(seen.std(0), 1e-6), 0.5, 2)
+        lab = (lab - seen.mean(0)) * ratio + ref.mean(0)
+
     grid = np.full(inside.shape, -1, dtype=np.int32)
-    cells = np.argwhere(inside)
-    grid[tuple(cells.T)] = nearest(np.clip(rgb[tuple(cells.T)], 0, 1) * 255, names)
+    cells = tuple(np.argwhere(inside).T)
+    grid[cells] = nearest_lab(lab[cells], names)
     return grid

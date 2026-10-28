@@ -168,7 +168,10 @@ def to_lab(rgb):
 
 
 def nearest(rgb, names):
-    lab = to_lab(rgb)
+    return nearest_lab(to_lab(rgb), names)
+
+
+def nearest_lab(lab, names):
     pal = to_lab([COLORS[n] for n in names])
     d = ((lab[:, None, :] - pal[None, :, :]) ** 2).sum(-1)
     return d.argmin(1)

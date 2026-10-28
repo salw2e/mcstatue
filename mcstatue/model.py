@@ -17,7 +17,7 @@ def load(threads=None):
 
 
 def cutout(path):
-    """object on a grey square, the way TripoSR was trained"""
+    """object on a grey square, the way TripoSR was trained, and the object's own pixels"""
     img = Image.open(path).convert("RGBA")
     if img.getextrema()[3][0] == 255:
         img = rembg.remove(img, session=rembg.new_session("isnet-general-use"))
@@ -30,7 +30,8 @@ def cutout(path):
     canvas[y:y + fg.shape[0], x:x + fg.shape[1]] = fg
     c = canvas.astype(np.float32) / 255
     rgb = c[..., :3] * c[..., 3:] + (1 - c[..., 3:]) * 0.5
-    return Image.fromarray((rgb * 255).astype(np.uint8))
+    pixels = fg[fg[..., 3] > 128][:, :3]
+    return Image.fromarray((rgb * 255).astype(np.uint8)), pixels[:: max(1, len(pixels) // 20000)]
 
 
 def sample(model, image, height, s=2):

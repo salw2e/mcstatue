@@ -18,14 +18,15 @@ def main():
 
     names = blocks.palette(a.blocks)
     out = a.out or os.path.splitext(a.photo)[0] + ".schem"
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
 
     from . import model
 
     t = time.time()
     m = model.load(a.threads)
-    image = model.cutout(a.photo)
+    image, pixels = model.cutout(a.photo)
     density, color = model.sample(m, image, a.height)
-    grid = voxel.blocks(density, color, names, solid=a.solid)
+    grid = voxel.blocks(density, color, names, photo=pixels, solid=a.solid)
     schem.write(out, grid, names)
     preview = os.path.splitext(out)[0] + ".png"
     render.preview(grid, names, preview)
