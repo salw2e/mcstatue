@@ -7,9 +7,9 @@ pip install git+https://github.com/salw2e/mcstatue
 mcstatue dog.jpg
 ```
 
-Needs Python 3.10 to 3.12. Without a GPU, install the CPU build of PyTorch first: `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
-
 This makes `dog.schem` and a preview picture `dog.png`. Put the schem in `plugins/WorldEdit/schematics`, then `//schem load dog` and `//paste` in game. The first run downloads about 2 GB of models.
+
+Tested on Python 3.12. Without a GPU, install the CPU build of PyTorch first: `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
 
 ```
 mcstatue dog.jpg --height 96
