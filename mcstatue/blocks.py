@@ -111,8 +111,6 @@ COLORS = {
     "coal_block": (16, 16, 16),
     "amethyst_block": (134, 98, 191),
     "honeycomb_block": (229, 148, 30),
-    "glowstone": (172, 131, 84),
-    "shroomlight": (241, 147, 71),
     "raw_iron_block": (166, 136, 107),
     "raw_gold_block": (222, 169, 47),
     "raw_copper_block": (154, 106, 79),
