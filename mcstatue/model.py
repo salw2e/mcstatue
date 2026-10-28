@@ -34,7 +34,7 @@ def cutout(path):
 
 
 def sample(model, image, height, s=2):
-    """density and colour, s samples per block edge, in Minecraft axes (x, y up, z facing the camera)"""
+    """density and colour, s samples per block edge, in Minecraft axes with the photo side facing +z"""
     with torch.no_grad():
         code = model([image], "cpu")[0]
 
@@ -58,6 +58,6 @@ def sample(model, image, height, s=2):
     n = np.ceil((hi - lo) / block).astype(int)
     density, color = query([lo[i] + (np.arange(n[i] * s) + 0.5) * block / s for i in range(3)])
 
-    # TripoSR (x, y, z up) to Minecraft (x, y up, z)
-    flip = lambda a: a[::-1, ::-1].transpose((1, 2, 0) + tuple(range(3, a.ndim)))
-    return flip(density), flip(color)
+    # TripoSR (x towards the camera, y, z up) to Minecraft (x, y up, z towards the camera)
+    turn = lambda a: a.transpose((1, 2, 0) + tuple(range(3, a.ndim)))
+    return turn(density), turn(color)
